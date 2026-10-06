@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="A small act of kindness for every day, and a record of the good you do.">
+  <title>For each other · Heal</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/theme-init.js"></script>
+  <script type="module" src="assets/js/pages/together.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="28" height="28">Heal</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="you.html">For you</a></li>
+          <li><a href="together.html" aria-current="page">For each other</a></li>
+          <li><a href="world.html">For everyone</a></li>
+          <li><a href="impact.html">Your impact</a></li>
+        </ul>
+      </nav>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false"><span aria-hidden="true">🌙</span> Dark theme</button>
+    </div>
+  </header>
+  <p id="storage-warning" class="banner" role="alert" hidden>This browser is blocking storage, so nothing you enter can be saved after you close this page.</p>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>For each other</h1>
+    <p class="lead">Small acts of kindness add up. Here's one for today.</p>
+
+    <section class="panel" id="today-idea" aria-labelledby="idea-heading">
+      <h2 id="idea-heading">Today's act of kindness</h2>
+      <p class="idea" id="idea-text" aria-live="polite"></p>
+      <div class="button-row">
+        <button type="button" class="button" id="idea-done">I did it</button>
+        <button type="button" class="button secondary" id="idea-next">Show another idea</button>
+      </div>
+      <p class="status" role="status" id="idea-status"></p>
+    </section>
+
+    <section class="panel" id="log-act" aria-labelledby="own-heading">
+      <h2 id="own-heading">Log your own act of kindness</h2>
+      <form id="act-form" novalidate>
+        <label for="act-text">What did you do?</label>
+        <div class="inline-form">
+          <input type="text" id="act-text" maxlength="200" autocomplete="off">
+          <button type="submit" class="button">Log it</button>
+        </div>
+        <p class="status" role="status" id="act-status"></p>
+      </form>
+    </section>
+
+    <section class="panel" id="your-kindness" aria-labelledby="kindness-heading">
+      <h2 id="kindness-heading">Your kindness</h2>
+      <dl class="stats" id="kindness-stats"></dl>
+      <h3 id="recent-heading" tabindex="-1">Recent acts</h3>
+      <ul class="entry-list" id="recent-acts"></ul>
+      <p class="muted" id="recent-empty">Nothing logged yet. Every act counts, however small.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Heal is free software under the GNU AGPL v3.0. <a href="https://github.com/charles2ke/heal">Read the source code</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

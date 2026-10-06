@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Look after yourself: a daily check-in, a breathing exercise and three good things.">
+  <title>For you · Heal</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/theme-init.js"></script>
+  <script type="module" src="assets/js/pages/you.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="28" height="28">Heal</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="you.html" aria-current="page">For you</a></li>
+          <li><a href="together.html">For each other</a></li>
+          <li><a href="world.html">For everyone</a></li>
+          <li><a href="impact.html">Your impact</a></li>
+        </ul>
+      </nav>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false"><span aria-hidden="true">🌙</span> Dark theme</button>
+    </div>
+  </header>
+  <p id="storage-warning" class="banner" role="alert" hidden>This browser is blocking storage, so nothing you enter can be saved after you close this page.</p>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>For you</h1>
+    <p class="lead">Healing the world starts with looking after yourself. Take a moment for you.</p>
+
+    <section class="panel" id="checkin" aria-labelledby="checkin-heading">
+      <h2 id="checkin-heading">Daily check-in</h2>
+      <form id="checkin-form" novalidate>
+        <fieldset class="moods">
+          <legend>How are you feeling today?</legend>
+          <div class="mood-options">
+            <input type="radio" name="mood" id="mood-1" value="1"><label for="mood-1"><span class="emoji" aria-hidden="true">😣</span>Struggling</label>
+            <input type="radio" name="mood" id="mood-2" value="2"><label for="mood-2"><span class="emoji" aria-hidden="true">😔</span>Low</label>
+            <input type="radio" name="mood" id="mood-3" value="3"><label for="mood-3"><span class="emoji" aria-hidden="true">😐</span>Okay</label>
+            <input type="radio" name="mood" id="mood-4" value="4"><label for="mood-4"><span class="emoji" aria-hidden="true">🙂</span>Good</label>
+            <input type="radio" name="mood" id="mood-5" value="5"><label for="mood-5"><span class="emoji" aria-hidden="true">😄</span>Great</label>
+          </div>
+        </fieldset>
+        <label for="checkin-note">Anything on your mind? <span class="muted">(optional)</span></label>
+        <textarea id="checkin-note" name="note" rows="3" maxlength="280" aria-describedby="note-hint"></textarea>
+        <p class="hint" id="note-hint">Up to 280 characters. Only you can see this.</p>
+        <button type="submit" class="button" id="checkin-submit">Save check-in</button>
+        <p class="status" role="status" id="checkin-status"></p>
+      </form>
+      <div class="nudge" id="support-nudge" hidden>
+        <p>Thank you for being honest with yourself. If things feel heavy, you don't have to carry them alone: talking to someone you trust can help, and <a href="#support">free, confidential support</a> is available.</p>
+      </div>
+      <h3 id="week-heading">Your last 7 days</h3>
+      <ol class="week" id="mood-week" aria-labelledby="week-heading"></ol>
+    </section>
+
+    <section class="panel" id="breathe" aria-labelledby="breathe-heading">
+      <h2 id="breathe-heading">Breathe</h2>
+      <p>A few minutes of slow breathing can help you feel calmer. Breathe gently, and stop if you feel dizzy or uncomfortable.</p>
+      <div class="breathe-controls">
+        <label for="breathing-pattern">Pattern</label>
+        <select id="breathing-pattern">
+          <option value="box">Box breathing (4-4-4-4)</option>
+          <option value="relax">4-7-8 breathing</option>
+        </select>
+        <button type="button" class="button" id="breathing-toggle">Start</button>
+      </div>
+      <div class="breath-stage">
+        <div class="breath-circle" id="breath-circle" aria-hidden="true"><span id="breath-count"></span></div>
+        <p class="breath-phase" id="breath-phase" aria-live="polite">Press Start when you're ready.</p>
+        <p class="muted" id="breath-cycles"></p>
+      </div>
+    </section>
+
+    <section class="panel" id="gratitude" aria-labelledby="gratitude-heading">
+      <h2 id="gratitude-heading">Three good things</h2>
+      <p>Noticing what went well, however small, helps you see the good around you.</p>
+      <form id="gratitude-form" novalidate>
+        <label for="gratitude-text">Something good from today</label>
+        <div class="inline-form">
+          <input type="text" id="gratitude-text" maxlength="200" autocomplete="off">
+          <button type="submit" class="button" id="gratitude-submit">Add</button>
+        </div>
+        <p class="status" role="status" id="gratitude-status"></p>
+      </form>
+      <h3 id="gratitude-list-heading" tabindex="-1">Today's good things</h3>
+      <ul class="entry-list" id="gratitude-list"></ul>
+      <p class="muted" id="gratitude-empty">Nothing yet today.</p>
+    </section>
+
+    <section class="panel support" id="support" aria-labelledby="support-heading">
+      <h2 id="support-heading">Need support now?</h2>
+      <p><strong>If you or someone else is in immediate danger, call your local emergency number now.</strong></p>
+      <p>If you're struggling, you don't have to go through it alone. <a href="https://findahelpline.com" target="_blank" rel="noopener noreferrer">Find a Helpline<span class="visually-hidden"> (opens in a new tab)</span></a> lists free, confidential helplines in many countries.</p>
+      <p class="muted">Heal is a self-care companion. It isn't a medical or crisis service, and no one reads what you write here.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Heal is free software under the GNU AGPL v3.0. <a href="https://github.com/charles2ke/heal">Read the source code</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "heal",
+  "version": "0.1.0",
+  "description": "Small, private, everyday actions that help heal yourself, each other and the world.",
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "start": "python3 -m http.server 4173 --bind 127.0.0.1",
+    "test:e2e": "playwright test",
+    "test:all": "npm test && npm run test:e2e"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/charles2ke/heal.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}

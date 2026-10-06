@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="Heal: small, steady steps to make the world a better place, for you, for each other and for everyone.">
+  <title>Heal: make the world a better place</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/theme-init.js"></script>
+  <script type="module" src="assets/js/pages/home.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="28" height="28">Heal</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html" aria-current="page">Home</a></li>
+          <li><a href="you.html">For you</a></li>
+          <li><a href="together.html">For each other</a></li>
+          <li><a href="world.html">For everyone</a></li>
+          <li><a href="impact.html">Your impact</a></li>
+        </ul>
+      </nav>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false"><span aria-hidden="true">🌙</span> Dark theme</button>
+    </div>
+  </header>
+  <p id="storage-warning" class="banner" role="alert" hidden>This browser is blocking storage, so nothing you enter can be saved after you close this page.</p>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <section class="hero" aria-labelledby="page-title">
+      <h1 id="page-title">Heal</h1>
+      <p class="lead">Small, steady steps to make the world a better place: for you, for the people around you, and for everyone.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="today-heading">
+      <h2 id="today-heading">Today</h2>
+      <p class="muted" id="today-date"></p>
+      <ul class="today-grid" id="today-grid"></ul>
+    </section>
+
+    <section aria-labelledby="sets-heading">
+      <h2 id="sets-heading">Three ways to help</h2>
+      <ul class="cards">
+        <li class="card">
+          <h3><a href="you.html">For you</a></h3>
+          <p>Check in with how you feel, take a moment to breathe and notice the good things. Healing the world starts with looking after yourself.</p>
+        </li>
+        <li class="card">
+          <h3><a href="together.html">For each other</a></h3>
+          <p>A small act of kindness for every day, and a record of the good you do for the people around you.</p>
+        </li>
+        <li class="card">
+          <h3><a href="world.html">For everyone</a></h3>
+          <p>Practical ways to help with the 17 UN Global Goals, and pledges you can keep track of.</p>
+        </li>
+        <li class="card">
+          <h3><a href="impact.html">Your impact</a></h3>
+          <p>See what your small steps add up to, and stay in control of your data.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel note" aria-labelledby="privacy-heading">
+      <h2 id="privacy-heading">Private by design</h2>
+      <p>Nothing you enter leaves your device. There are no accounts, no analytics and no tracking: Heal keeps everything in this browser. You can export or delete your data at any time from <a href="impact.html#your-data">Your impact</a>.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Heal is free software under the GNU AGPL v3.0. <a href="https://github.com/charles2ke/heal">Read the source code</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
