@@ -62,7 +62,7 @@ function renderRecent(data, today) {
           'button',
           { className: 'link-button', attrs: { type: 'button' }, on: { click: () => removeLogged(act.id) } },
           'Remove',
-          hiddenText(`: ${act.text}`),
+          hiddenText(` “${act.text}”`),
         ),
       ),
     ),

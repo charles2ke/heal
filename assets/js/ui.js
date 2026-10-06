@@ -20,6 +20,8 @@ export function el(tag, options = {}, ...children) {
   return node;
 }
 
+// Browsers differ on whether they put a space before hidden text in an accessible
+// name, so start it with a space when it continues a visible word.
 export function hiddenText(text) {
   return el('span', { className: 'visually-hidden', text });
 }

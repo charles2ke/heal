@@ -51,10 +51,12 @@ function renderWeek(data, today) {
   weekList.replaceChildren(
     ...lastNDays(7, today).map((date) => {
       const mood = moodFor(checkinFor(data, date)?.mood);
+      const isToday = date === today;
+      // Today keeps its short day name so the strip fits a 320px screen, and is marked instead.
       return el(
         'li',
-        { className: mood ? `day mood-${mood.value}` : 'day' },
-        el('span', { className: 'day-name', text: date === today ? 'Today' : formatDay(date, { weekday: 'short' }) }),
+        { className: mood ? `day mood-${mood.value}` : 'day', attrs: { 'aria-current': isToday && 'date' } },
+        el('span', { className: 'day-name', text: formatDay(date, { weekday: 'short' }) }, isToday && hiddenText(' (today)')),
         el('span', { className: 'day-mood', attrs: { 'aria-hidden': 'true' }, text: mood ? mood.emoji : '–' }),
         hiddenText(mood ? `: ${mood.label}` : ': no check-in'),
       );
@@ -74,7 +76,7 @@ function renderGratitude(data, today) {
           'button',
           { className: 'link-button', attrs: { type: 'button' }, on: { click: () => removeEntry(entry.id) } },
           'Remove',
-          hiddenText(`: ${entry.text}`),
+          hiddenText(` “${entry.text}”`),
         ),
       ),
     ),

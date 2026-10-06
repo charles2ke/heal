@@ -74,7 +74,7 @@ function renderGoals(data) {
                 },
                 el('span', { className: 'check', attrs: { 'aria-hidden': 'true' }, text: '✓ ' }),
                 'Pledge',
-                hiddenText(`: ${action.text}`),
+                hiddenText(` “${action.text}”`),
               ),
             ),
           ),
@@ -115,7 +115,7 @@ function renderPledges(data) {
           'button',
           { className: 'link-button', attrs: { type: 'button' }, on: { click: () => unpledge(pledge.id) } },
           'Remove',
-          hiddenText(`: ${pledge.text}`),
+          hiddenText(` “${pledge.text}”`),
         ),
       );
     }),

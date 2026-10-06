@@ -532,6 +532,7 @@ textarea {
 }
 
 .cards {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -647,9 +648,27 @@ textarea {
   font-size: 0.85rem;
 }
 
+.day[aria-current="date"] {
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+.day[aria-current="date"] .day-name {
+  font-weight: 700;
+}
+
 .day-mood {
   font-size: 1.4rem;
   line-height: 1.3;
+}
+
+@media (max-width: 24rem) {
+  .week {
+    gap: 0.25rem;
+  }
+
+  .day {
+    padding-inline: 0;
+  }
 }
 
 .breathe-controls {
@@ -970,6 +989,13 @@ textarea {
 .week-table thead th {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+@media (max-width: 24rem) {
+  .week-table th,
+  .week-table td {
+    padding-inline: 0.3rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

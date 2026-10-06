@@ -43,7 +43,7 @@
 
     <section class="panel" aria-labelledby="week-heading">
       <h2 id="week-heading">Your week</h2>
-      <div class="table-wrap">
+      <div class="table-wrap" role="region" aria-labelledby="week-heading" tabindex="0">
         <table class="week-table">
           <caption class="visually-hidden">Your mood, good things and acts of kindness for each of the last 7 days</caption>
           <thead>
@@ -51,7 +51,7 @@
               <th scope="col">Day</th>
               <th scope="col">Mood</th>
               <th scope="col">Good things</th>
-              <th scope="col">Acts of kindness</th>
+              <th scope="col">Kind acts</th>
             </tr>
           </thead>
           <tbody id="week-body"></tbody>
