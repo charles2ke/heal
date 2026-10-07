@@ -202,9 +202,26 @@ describe('Store', () => {
   });
 
   it('reports when saving fails', () => {
-    const store = new Store(new FullStorage());
+    const storage = new FullStorage();
+    const store = new Store(storage);
     assert.equal(store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })), false);
+    assert.equal(
+      store.update((data) => ({ ...data, gratitude: [{ id: 'g1', date: '2026-03-10', text: 'A good thing' }] })),
+      false,
+    );
     assert.equal(store.persistent, false);
+    assert.equal(store.data.checkins.length, 1);
+    assert.equal(store.data.gratitude.length, 1);
+
+    storage.setItem = MemoryStorage.prototype.setItem;
+    assert.equal(
+      store.update((data) => ({ ...data, kindness: [{ id: 'k1', date: '2026-03-10', ideaId: null, text: 'Helped a friend' }] })),
+      true,
+    );
+    assert.equal(store.persistent, true);
+    assert.equal(new Store(storage).data.checkins.length, 1);
+    assert.equal(new Store(storage).data.gratitude.length, 1);
+    assert.equal(new Store(storage).data.kindness.length, 1);
   });
 
   it('clears everything', () => {

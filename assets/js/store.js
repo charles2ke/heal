@@ -171,7 +171,7 @@ export class Store {
   }
 
   read() {
-    if (!this.storage) return normalizeData(this.memory);
+    if (!this.storage || !this.persistent) return normalizeData(this.memory);
     try {
       const raw = this.storage.getItem(this.key);
       return raw ? normalizeData(JSON.parse(raw)) : emptyData();
