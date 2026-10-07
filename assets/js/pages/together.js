@@ -79,9 +79,9 @@ function render(store, today) {
 const page = startPage(render);
 
 // Logs an act and reports whether it was new and whether it was saved.
-function log(entry) {
+async function log(entry) {
   let logged = false;
-  const saved = page.update((data) => {
+  const saved = await page.update((data) => {
     const next = logAct(data, entry);
     logged = next !== data;
     return next;
@@ -89,10 +89,10 @@ function log(entry) {
   return { logged, saved };
 }
 
-doneButton.addEventListener('click', () => {
+doneButton.addEventListener('click', async () => {
   const today = page.today();
   const idea = shownIdea(today);
-  const { logged, saved } = log({ date: today, ideaId: idea.id, text: idea.text });
+  const { logged, saved } = await log({ date: today, ideaId: idea.id, text: idea.text });
   if (!logged) announce(ideaStatus, "You've already logged this one today. Thank you!");
   else if (!saved) announce(ideaStatus, "Logged, but this browser can't save it.");
   else announce(ideaStatus, 'Logged. Thank you for making the world a little kinder.');
@@ -105,20 +105,20 @@ nextButton.addEventListener('click', () => {
   renderIdea(page.store.data, page.today());
 });
 
-actForm.addEventListener('submit', (event) => {
+actForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   if (!actInput.value.trim()) {
     announce(actStatus, 'Write what you did first.');
     actInput.focus();
     return;
   }
-  const { saved } = log({ date: page.today(), text: actInput.value });
+  const { saved } = await log({ date: page.today(), text: actInput.value });
   actInput.value = '';
   announce(actStatus, saved ? 'Logged. Every act counts.' : "Logged, but this browser can't save it.");
 });
 
-function removeLogged(id) {
-  page.update((data) => removeAct(data, id));
+async function removeLogged(id) {
+  await page.update((data) => removeAct(data, id));
   announce(actStatus, 'Removed.');
   recentHeading.focus();
 }

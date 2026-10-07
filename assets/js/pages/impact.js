@@ -113,7 +113,7 @@ importInput.addEventListener('change', async () => {
     announce(dataStatus, 'Import cancelled. Nothing was changed.');
     return;
   }
-  const saved = page.update(() => result.data);
+  const saved = await page.update(() => result.data);
   const parts = [`Imported ${plural(countEntries(result.data), 'entry', 'entries')}.`];
   if (result.skipped) {
     const reason = result.skipped === 1 ? 'it was invalid or repeated' : 'they were invalid or repeated';
@@ -123,9 +123,9 @@ importInput.addEventListener('change', async () => {
   announce(dataStatus, parts.join(' '));
 });
 
-deleteButton.addEventListener('click', () => {
+deleteButton.addEventListener('click', async () => {
   if (!globalThis.confirm('Delete all of your Heal data from this browser? This cannot be undone.')) return;
-  const cleared = page.store.clear();
+  const cleared = await page.store.clear();
   forgetTheme();
   page.refresh();
   announce(dataStatus, cleared ? 'All of your Heal data has been deleted from this browser.' : "Your data couldn't be deleted. Try clearing this site's data in your browser settings.");

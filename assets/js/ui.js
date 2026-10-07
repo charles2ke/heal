@@ -67,8 +67,8 @@ export function startPage(render) {
     // The date right now, which may be later than the last render.
     today: () => toDateKey(),
     // Applies a change, re-renders and returns whether it was saved.
-    update(change) {
-      const saved = store.update(change);
+    async update(change) {
+      const saved = await store.update(change);
       refresh();
       return saved;
     },

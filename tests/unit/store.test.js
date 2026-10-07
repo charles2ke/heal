@@ -24,6 +24,27 @@ class FullStorage extends MemoryStorage {
   }
 }
 
+class TestLocks {
+  constructor() {
+    this.queues = new Map();
+  }
+  request(name, callback) {
+    const previous = this.queues.get(name) ?? Promise.resolve();
+    let release;
+    const current = new Promise((resolve) => {
+      release = resolve;
+    });
+    const queue = previous.then(() => current);
+    this.queues.set(name, queue);
+    return previous.then(callback).finally(() => {
+      release();
+      if (this.queues.get(name) === queue) this.queues.delete(name);
+    });
+  }
+}
+
+const locks = new TestLocks();
+
 describe('cleanText', () => {
   it('trims, collapses whitespace and strips control characters', () => {
     assert.equal(cleanText('  hello \n\t world\u0000 ', 50), 'hello world');
@@ -167,46 +188,89 @@ describe('normalizeData', () => {
 });
 
 describe('Store', () => {
-  it('starts empty and saves changes', () => {
+  it('starts empty and saves changes', async () => {
     const storage = new MemoryStorage();
-    const store = new Store(storage);
+    const store = new Store(storage, STORAGE_KEY, locks);
     assert.deepEqual(store.data, emptyData());
-    assert.equal(store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 4, note: '' }] })), true);
+    assert.equal(await store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 4, note: '' }] })), true);
     assert.equal(JSON.parse(storage.getItem(STORAGE_KEY)).checkins[0].mood, 4);
-    assert.equal(new Store(storage).data.checkins.length, 1);
+    assert.equal(new Store(storage, STORAGE_KEY, locks).data.checkins.length, 1);
   });
 
   it('recovers from corrupt saved data', () => {
     const storage = new MemoryStorage();
     storage.setItem(STORAGE_KEY, '{not json');
-    assert.deepEqual(new Store(storage).data, emptyData());
+    assert.deepEqual(new Store(storage, STORAGE_KEY, locks).data, emptyData());
   });
 
-  it('applies changes to the freshest saved copy', () => {
+  it('applies changes to the freshest saved copy', async () => {
     const storage = new MemoryStorage();
-    const tabA = new Store(storage);
-    const tabB = new Store(storage);
-    tabA.update((data) => ({ ...data, gratitude: [{ id: 'a', date: '2026-03-10', text: 'from A' }] }));
-    tabB.update((data) => ({ ...data, kindness: [{ id: 'b', date: '2026-03-10', ideaId: null, text: 'from B' }] }));
-    const saved = new Store(storage).data;
+    const tabA = new Store(storage, STORAGE_KEY, locks);
+    const tabB = new Store(storage, STORAGE_KEY, locks);
+    await tabA.update((data) => ({ ...data, gratitude: [{ id: 'a', date: '2026-03-10', text: 'from A' }] }));
+    await tabB.update((data) => ({ ...data, kindness: [{ id: 'b', date: '2026-03-10', ideaId: null, text: 'from B' }] }));
+    const saved = new Store(storage, STORAGE_KEY, locks).data;
     assert.equal(saved.gratitude.length, 1);
     assert.equal(saved.kindness.length, 1);
   });
 
-  it('keeps working in memory when storage is unavailable', () => {
-    const store = new Store(null);
+  it('serializes concurrent updates from separate tabs', async () => {
+    const storage = new MemoryStorage();
+    const tabA = new Store(storage, STORAGE_KEY, locks);
+    const tabB = new Store(storage, STORAGE_KEY, locks);
+    let startFirst;
+    const firstStarted = new Promise((resolve) => {
+      startFirst = resolve;
+    });
+    let releaseFirst;
+    const firstGate = new Promise((resolve) => {
+      releaseFirst = resolve;
+    });
+
+    const first = tabA.update(async (data) => {
+      startFirst();
+      await firstGate;
+      return { ...data, gratitude: [{ id: 'a', date: '2026-03-10', text: 'from A' }] };
+    });
+    await firstStarted;
+    const second = tabB.update((data) => ({
+      ...data,
+      kindness: [{ id: 'b', date: '2026-03-10', ideaId: null, text: 'from B' }],
+    }));
+    releaseFirst();
+
+    assert.deepEqual(await Promise.all([first, second]), [true, true]);
+    const saved = new Store(storage, STORAGE_KEY, locks).data;
+    assert.equal(saved.gratitude.length, 1);
+    assert.equal(saved.kindness.length, 1);
+  });
+
+  it('keeps working in memory when storage is unavailable', async () => {
+    const store = new Store(null, STORAGE_KEY, locks);
     assert.equal(store.persistent, false);
-    assert.equal(store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })), false);
+    assert.equal(await store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })), false);
     assert.equal(store.data.checkins.length, 1);
     assert.equal(store.read().checkins.length, 1);
   });
 
-  it('reports when saving fails', () => {
-    const storage = new FullStorage();
-    const store = new Store(storage);
-    assert.equal(store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })), false);
+  it('does not persist changes without cross-tab locks', async () => {
+    const storage = new MemoryStorage();
+    const store = new Store(storage, STORAGE_KEY, null);
     assert.equal(
-      store.update((data) => ({ ...data, gratitude: [{ id: 'g1', date: '2026-03-10', text: 'A good thing' }] })),
+      await store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })),
+      false,
+    );
+    assert.equal(store.persistent, false);
+    assert.equal(store.data.checkins.length, 1);
+    assert.equal(storage.getItem(STORAGE_KEY), null);
+  });
+
+  it('reports when saving fails', async () => {
+    const storage = new FullStorage();
+    const store = new Store(storage, STORAGE_KEY, locks);
+    assert.equal(await store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] })), false);
+    assert.equal(
+      await store.update((data) => ({ ...data, gratitude: [{ id: 'g1', date: '2026-03-10', text: 'A good thing' }] })),
       false,
     );
     assert.equal(store.persistent, false);
@@ -215,20 +279,20 @@ describe('Store', () => {
 
     storage.setItem = MemoryStorage.prototype.setItem;
     assert.equal(
-      store.update((data) => ({ ...data, kindness: [{ id: 'k1', date: '2026-03-10', ideaId: null, text: 'Helped a friend' }] })),
+      await store.update((data) => ({ ...data, kindness: [{ id: 'k1', date: '2026-03-10', ideaId: null, text: 'Helped a friend' }] })),
       true,
     );
     assert.equal(store.persistent, true);
-    assert.equal(new Store(storage).data.checkins.length, 1);
-    assert.equal(new Store(storage).data.gratitude.length, 1);
-    assert.equal(new Store(storage).data.kindness.length, 1);
+    assert.equal(new Store(storage, STORAGE_KEY, locks).data.checkins.length, 1);
+    assert.equal(new Store(storage, STORAGE_KEY, locks).data.gratitude.length, 1);
+    assert.equal(new Store(storage, STORAGE_KEY, locks).data.kindness.length, 1);
   });
 
-  it('clears everything', () => {
+  it('clears everything', async () => {
     const storage = new MemoryStorage();
-    const store = new Store(storage);
-    store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] }));
-    assert.equal(store.clear(), true);
+    const store = new Store(storage, STORAGE_KEY, locks);
+    await store.update((data) => ({ ...data, checkins: [{ date: '2026-03-10', mood: 3, note: '' }] }));
+    assert.equal(await store.clear(), true);
     assert.equal(storage.getItem(STORAGE_KEY), null);
     assert.deepEqual(store.data, emptyData());
   });

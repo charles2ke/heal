@@ -35,6 +35,7 @@ test('shows another idea on request', async ({ page }) => {
   await page.getByRole('button', { name: 'Show another idea' }).click();
   await expect(page.locator('#idea-text')).toHaveText(nextIdea.text);
   await page.getByRole('button', { name: 'I did it' }).click();
+  await expect(page.locator('#idea-status')).toHaveText('Logged. Thank you for making the world a little kinder.');
   expect((await savedData(page)).kindness[0]).toMatchObject({ date: TODAY, ideaId: nextIdea.id, text: nextIdea.text });
 });
 

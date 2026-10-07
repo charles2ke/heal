@@ -161,9 +161,10 @@ export function browserStorage() {
 }
 
 export class Store {
-  constructor(storage = browserStorage(), key = STORAGE_KEY) {
+  constructor(storage = browserStorage(), key = STORAGE_KEY, locks = globalThis.navigator?.locks) {
     this.storage = storage;
     this.key = key;
+    this.locks = locks;
     // False when nothing can be saved, so pages can warn the user honestly.
     this.persistent = Boolean(storage);
     this.memory = emptyData();
@@ -198,12 +199,22 @@ export class Store {
     }
   }
 
-  // Applies a pure change to the freshest saved copy, so an older copy held by
-  // another open tab cannot overwrite newer changes. Returns whether it saved.
+  // Applies a change to the freshest saved copy while holding a cross-tab lock.
   update(change) {
-    const next = normalizeData(change(this.read()));
-    this.data = next;
-    return this.write(next);
+    const apply = async () => {
+      const next = normalizeData(await change(this.read()));
+      this.data = next;
+      return this.write(next);
+    };
+    if (this.locks?.request) return this.locks.request(`heal:${this.key}`, apply);
+    if (!this.storage) return apply();
+    return Promise.resolve().then(async () => {
+      const next = normalizeData(await change(this.read()));
+      this.memory = next;
+      this.data = next;
+      this.persistent = false;
+      return false;
+    });
   }
 
   replace(data) {
@@ -211,14 +222,24 @@ export class Store {
   }
 
   clear() {
-    this.memory = emptyData();
-    this.data = emptyData();
-    if (!this.storage) return true;
-    try {
-      this.storage.removeItem(this.key);
-      return true;
-    } catch {
+    const apply = () => {
+      this.memory = emptyData();
+      this.data = emptyData();
+      if (!this.storage) return true;
+      try {
+        this.storage.removeItem(this.key);
+        return true;
+      } catch {
+        return false;
+      }
+    };
+    if (this.locks?.request) return this.locks.request(`heal:${this.key}`, apply);
+    if (!this.storage) return Promise.resolve().then(apply);
+    return Promise.resolve().then(() => {
+      this.memory = emptyData();
+      this.data = emptyData();
+      this.persistent = false;
       return false;
-    }
+    });
   }
 }

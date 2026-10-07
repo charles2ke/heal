@@ -138,10 +138,10 @@ function render(store) {
 
 const page = startPage(render);
 
-function togglePledge(goal, action) {
+async function togglePledge(goal, action) {
   const existing = pledgeFor(page.store.data, action.id);
   if (existing) {
-    page.update((data) => {
+    await page.update((data) => {
       const pledge = pledgeFor(data, action.id);
       return pledge ? removePledge(data, pledge.id) : data;
     });
@@ -152,17 +152,17 @@ function togglePledge(goal, action) {
     announce(pledgeStatus, 'You have reached the limit of 200 pledges. Remove one before adding another.');
     return;
   }
-  const saved = page.update((data) => addPledge(data, { goal, action, date: page.today() }));
+  const saved = await page.update((data) => addPledge(data, { goal, action, date: page.today() }));
   announce(pledgeStatus, saved ? 'Pledged. You can find it under My pledges.' : "Pledged, but this browser can't save it.");
 }
 
-function markDone(id, done) {
-  page.update((data) => setPledgeDone(data, id, done ? page.today() : null));
+async function markDone(id, done) {
+  await page.update((data) => setPledgeDone(data, id, done ? page.today() : null));
   announce(pledgeStatus, done ? 'Marked as done. Well done!' : 'Marked as not done yet.');
 }
 
-function unpledge(id) {
-  page.update((data) => removePledge(data, id));
+async function unpledge(id) {
+  await page.update((data) => removePledge(data, id));
   announce(pledgeStatus, 'Pledge removed.');
   pledgesHeading.focus();
 }

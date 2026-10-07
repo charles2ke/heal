@@ -100,7 +100,7 @@ function render(store, today) {
 
 const page = startPage(render);
 
-checkinForm.addEventListener('submit', (event) => {
+checkinForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const selected = moodInputs.find((input) => input.checked);
   if (!selected) {
@@ -110,18 +110,18 @@ checkinForm.addEventListener('submit', (event) => {
   }
   const today = page.today();
   const existed = Boolean(checkinFor(page.store.data, today));
-  const saved = page.update((data) => setCheckin(data, { date: today, mood: Number(selected.value), note: noteInput.value }));
+  const saved = await page.update((data) => setCheckin(data, { date: today, mood: Number(selected.value), note: noteInput.value }));
   if (!saved) announce(checkinStatus, "Check-in noted, but this browser can't save it.");
   else announce(checkinStatus, existed ? 'Check-in updated.' : 'Check-in saved. Thank you for taking a moment for yourself.');
 });
 
-function removeEntry(id) {
-  page.update((data) => removeGratitude(data, id));
+async function removeEntry(id) {
+  await page.update((data) => removeGratitude(data, id));
   announce(gratitudeStatus, 'Removed.');
   gratitudeHeading.focus();
 }
 
-gratitudeForm.addEventListener('submit', (event) => {
+gratitudeForm.addEventListener('submit', async (event) => {
   event.preventDefault();
   const text = gratitudeInput.value;
   if (!text.trim()) {
@@ -131,7 +131,7 @@ gratitudeForm.addEventListener('submit', (event) => {
   }
   const today = page.today();
   let added = false;
-  const saved = page.update((data) => {
+  const saved = await page.update((data) => {
     const next = addGratitude(data, { date: today, text });
     added = next !== data;
     return next;

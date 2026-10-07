@@ -90,9 +90,13 @@ test.describe('three good things', () => {
     await add.click();
     await expect(page.locator('#gratitude-status')).toHaveText('Write something good first, however small.');
 
-    for (const text of ['Fresh coffee', 'A kind email', 'Finished my book']) {
+    const entries = ['Fresh coffee', 'A kind email', 'Finished my book'];
+    for (const [index, text] of entries.entries()) {
       await input.fill(text);
       await add.click();
+      await expect(page.locator('#gratitude-status')).toHaveText(
+        index === entries.length - 1 ? "Added. That's your three good things for today." : 'Added.',
+      );
     }
     await expect(page.locator('#gratitude-list > li')).toHaveCount(3);
     await expect(page.locator('#gratitude-status')).toHaveText("Added. That's your three good things for today.");
