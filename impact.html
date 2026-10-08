@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="description" content="See what your small steps add up to, and export, import or delete your data.">
+  <title>Your impact · Heal</title>
+  <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/theme-init.js"></script>
+  <script type="module" src="assets/js/pages/impact.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="index.html"><img src="assets/icon.svg" alt="" width="28" height="28">Heal</a>
+      <nav class="site-nav" aria-label="Main">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="you.html">For you</a></li>
+          <li><a href="together.html">For each other</a></li>
+          <li><a href="world.html">For everyone</a></li>
+          <li><a href="impact.html" aria-current="page">Your impact</a></li>
+        </ul>
+      </nav>
+      <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false"><span aria-hidden="true">🌙</span> Dark theme</button>
+    </div>
+  </header>
+  <p id="storage-warning" class="banner" role="alert" hidden>This browser is blocking storage, so nothing you enter can be saved after you close this page.</p>
+
+  <main id="main" class="wrap" tabindex="-1">
+    <h1>Your impact</h1>
+    <p class="lead">Every small step counts. Here's what yours add up to.</p>
+
+    <section class="panel" aria-labelledby="glance-heading">
+      <h2 id="glance-heading">At a glance</h2>
+      <ul class="stat-grid" id="stat-grid"></ul>
+    </section>
+
+    <section class="panel" aria-labelledby="week-heading">
+      <h2 id="week-heading">Your week</h2>
+      <div class="table-wrap" role="region" aria-labelledby="week-heading" tabindex="0">
+        <table class="week-table">
+          <caption class="visually-hidden">Your mood, good things and acts of kindness for each of the last 7 days</caption>
+          <thead>
+            <tr>
+              <th scope="col">Day</th>
+              <th scope="col">Mood</th>
+              <th scope="col">Good things</th>
+              <th scope="col">Kind acts</th>
+            </tr>
+          </thead>
+          <tbody id="week-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel" id="your-data" aria-labelledby="data-heading">
+      <h2 id="data-heading">Your data</h2>
+      <p>Everything Heal knows is stored in this browser, on this device only. If you clear your browser data or switch to another browser or device, you'll start afresh, so export a copy if you'd like to keep it.</p>
+      <div class="button-row">
+        <button type="button" class="button" id="export-data">Export my data</button>
+        <button type="button" class="button secondary" id="import-data">Import data</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
+        <button type="button" class="button danger" id="delete-data">Delete all my data</button>
+      </div>
+      <p class="status" role="status" id="data-status"></p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>Heal is free software under the GNU AGPL v3.0. <a href="https://github.com/charles2ke/heal">Read the source code</a>.</p>
+    </div>
+  </footer>
+</body>
+</html>
