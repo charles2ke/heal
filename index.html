@@ -6,9 +6,14 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" data-scheme="light">
+  <meta name="theme-color" content="#152226" media="(prefers-color-scheme: dark)" data-scheme="dark">
   <meta name="description" content="Heal: small, steady steps to make the world a better place, for you, for each other and for everyone.">
   <title>Heal: make the world a better place</title>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Heal">
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="assets/js/theme-init.js"></script>
   <script type="module" src="assets/js/pages/home.js"></script>
@@ -69,6 +74,16 @@
     <section class="panel note" aria-labelledby="privacy-heading">
       <h2 id="privacy-heading">Private by design</h2>
       <p>Nothing you enter leaves your device. There are no accounts, no analytics and no tracking: Heal keeps everything in this browser. You can export or delete your data at any time from <a href="impact.html#your-data">Your impact</a>.</p>
+    </section>
+
+    <section class="panel" id="install" aria-labelledby="install-heading">
+      <h2 id="install-heading" tabindex="-1">Use Heal like an app</h2>
+      <p>Add Heal to your home screen or desktop to open it in its own window, like any other app.</p>
+      <p class="done" id="offline-status" hidden><span aria-hidden="true">✓ </span>Heal is saved in this browser, so it works offline too.</p>
+      <p id="install-actions" hidden><button type="button" class="button" id="install-button">Install Heal</button></p>
+      <p class="muted" id="install-hint">No Install button? Look for Install or Add to Home Screen in your browser's menu. On an iPhone or iPad, it's under Share. Not every browser can install apps.</p>
+      <p class="muted" id="install-data">On an iPhone or iPad, or from Safari on a Mac, the app keeps its own data, apart from your browser's. To bring your data across, export it from <a href="impact.html#your-data">Your impact</a> in your browser, then import it in the app.</p>
+      <p class="status" role="status" id="install-status"></p>
     </section>
   </main>
 

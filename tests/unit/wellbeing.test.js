@@ -8,11 +8,14 @@ import {
   addGratitude,
   breathingStep,
   canAddGratitude,
+  canCheckIn,
+  checkinDays,
   checkinFor,
   cycleSeconds,
   gratitudeFor,
   moodFor,
   removeGratitude,
+  sessionRounds,
   setCheckin,
 } from '../../assets/js/wellbeing.js';
 
@@ -34,6 +37,16 @@ describe('check-ins', () => {
     assert.equal(data.checkins.length, 1);
     assert.deepEqual(checkinFor(data, '2026-03-10'), { date: '2026-03-10', mood: 4, note: '' });
     assert.equal(checkinFor(data, '2026-03-11'), null);
+  });
+
+  it('can be filled in for the past week, newest day first', () => {
+    const days = checkinDays('2026-03-10');
+    assert.equal(days.length, 7);
+    assert.equal(days[0], '2026-03-10');
+    assert.equal(days.at(-1), '2026-03-04');
+    assert.equal(canCheckIn('2026-03-04', '2026-03-10'), true);
+    assert.equal(canCheckIn('2026-03-03', '2026-03-10'), false);
+    assert.equal(canCheckIn('2026-03-11', '2026-03-10'), false);
   });
 });
 
@@ -69,6 +82,31 @@ describe('breathing', () => {
   it('knows each cycle length', () => {
     assert.equal(cycleSeconds(box), 16);
     assert.equal(cycleSeconds(relax), 19);
+    assert.equal(cycleSeconds(BREATHING_PATTERNS.even), 10);
+    assert.equal(cycleSeconds(BREATHING_PATTERNS.longer), 10);
+  });
+
+  it('describes every pattern', () => {
+    for (const [id, pattern] of Object.entries(BREATHING_PATTERNS)) {
+      assert.equal(pattern.id, id);
+      assert.ok(pattern.label && pattern.description, id);
+    }
+  });
+
+  it('fits whole rounds into a timed session', () => {
+    assert.equal(sessionRounds(box, 0), 0);
+    assert.equal(sessionRounds(box, 1), 4);
+    assert.equal(sessionRounds(box, 5), 19);
+    assert.equal(sessionRounds(relax, 1), 3);
+    assert.equal(sessionRounds(BREATHING_PATTERNS.even, 3), 18);
+    assert.equal(sessionRounds(relax, 0.1), 1);
+  });
+
+  it('breathes in and out with no hold', () => {
+    const even = BREATHING_PATTERNS.even;
+    assert.deepEqual(pick(breathingStep(even, 4_900)), ['Breathe in', 0, 1]);
+    assert.deepEqual(pick(breathingStep(even, 5_000)), ['Breathe out', 0, 5]);
+    assert.deepEqual(pick(breathingStep(even, 10_000)), ['Breathe in', 1, 5]);
   });
 
   it('works out the phase from elapsed time', () => {

@@ -1,5 +1,9 @@
 // Light and dark themes. With no saved choice, Heal follows the system setting.
 // theme-init.js applies a saved choice before the page paints.
+//
+// Each page has a theme-color meta tag for each theme, which colours the browser's
+// toolbar or an installed app's title bar to match the header. A chosen theme
+// switches the other one off.
 
 export const THEME_KEY = 'heal:theme';
 
@@ -24,6 +28,10 @@ export function currentTheme() {
 function applyTheme(theme) {
   if (theme) document.documentElement.dataset.theme = theme;
   else delete document.documentElement.dataset.theme;
+  for (const meta of document.querySelectorAll('meta[name="theme-color"][data-scheme]')) {
+    const { scheme } = meta.dataset;
+    meta.setAttribute('media', theme ? (scheme === theme ? 'all' : 'not all') : `(prefers-color-scheme: ${scheme})`);
+  }
   for (const listener of listeners) listener();
 }
 

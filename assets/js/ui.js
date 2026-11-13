@@ -1,7 +1,8 @@
-// Shared page plumbing: safe DOM building, the store, and keeping every open
-// tab and every day boundary in sync.
+// Shared page plumbing: safe DOM building, the store, keeping every open tab and
+// every day boundary in sync, and saving Heal for offline use.
 
 import { toDateKey } from './dates.js';
+import { registerServiceWorker } from './pwa.js';
 import { STORAGE_KEY, Store } from './store.js';
 import { setupThemeToggle } from './theme.js';
 
@@ -38,7 +39,7 @@ export function externalLink(href, text, className) {
 }
 
 // Sets up the page and calls render(store, today) now, whenever another tab
-// changes Heal's data, and when the page is shown again on a new day.
+// changes Heal's data, and when a new day starts or the page is shown again on one.
 export function startPage(render) {
   const store = new Store();
   const warning = document.getElementById('storage-warning');
@@ -58,7 +59,22 @@ export function startPage(render) {
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'visible' && toDateKey() !== today) refresh();
   });
+  // Moves a page left open on to the new day just after midnight. Checking at
+  // least once a minute also catches the computer waking up or the clock changing.
+  const watchForNewDay = () => {
+    const now = new Date();
+    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    setTimeout(
+      () => {
+        if (toDateKey() !== today) refresh();
+        watchForNewDay();
+      },
+      Math.min(midnight - now + 500, 60_000),
+    );
+  };
+  watchForNewDay();
   setupThemeToggle(document.getElementById('theme-toggle'));
+  registerServiceWorker();
   refresh();
 
   return {

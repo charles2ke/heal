@@ -6,9 +6,14 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" data-scheme="light">
+  <meta name="theme-color" content="#152226" media="(prefers-color-scheme: dark)" data-scheme="dark">
   <meta name="description" content="Look after yourself: a daily check-in, a breathing exercise and three good things.">
   <title>For you · Heal</title>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Heal">
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="assets/js/theme-init.js"></script>
   <script type="module" src="assets/js/pages/you.js"></script>
@@ -39,8 +44,15 @@
     <section class="panel" id="checkin" aria-labelledby="checkin-heading">
       <h2 id="checkin-heading">Daily check-in</h2>
       <form id="checkin-form" novalidate>
+        <div class="day-choice">
+          <label for="checkin-day">Check in for</label>
+          <select id="checkin-day" aria-describedby="checkin-day-hint">
+            <option>Today</option>
+          </select>
+        </div>
+        <p class="hint" id="checkin-day-hint">Missed a day? You can fill it in for up to a week.</p>
         <fieldset class="moods">
-          <legend>How are you feeling today?</legend>
+          <legend id="checkin-legend">How are you feeling today?</legend>
           <div class="mood-options">
             <input type="radio" name="mood" id="mood-1" value="1"><label for="mood-1"><span class="emoji" aria-hidden="true">😣</span>Struggling</label>
             <input type="radio" name="mood" id="mood-2" value="2"><label for="mood-2"><span class="emoji" aria-hidden="true">😔</span>Low</label>
@@ -60,19 +72,34 @@
       </div>
       <h3 id="week-heading">Your last 7 days</h3>
       <ol class="week" id="mood-week" aria-labelledby="week-heading"></ol>
+      <p class="more-link"><a href="impact.html#look-back">Look back at earlier days</a></p>
     </section>
 
     <section class="panel" id="breathe" aria-labelledby="breathe-heading">
       <h2 id="breathe-heading">Breathe</h2>
       <p>A few minutes of slow breathing can help you feel calmer. Breathe gently, and stop if you feel dizzy or uncomfortable.</p>
       <div class="breathe-controls">
-        <label for="breathing-pattern">Pattern</label>
-        <select id="breathing-pattern">
-          <option value="box">Box breathing (4-4-4-4)</option>
-          <option value="relax">4-7-8 breathing</option>
-        </select>
+        <div class="breathe-field">
+          <label for="breathing-pattern">Pattern</label>
+          <select id="breathing-pattern" aria-describedby="breathing-description">
+            <option value="box">Box breathing (4-4-4-4)</option>
+            <option value="relax">4-7-8 breathing</option>
+            <option value="even">Even breathing (5-5)</option>
+            <option value="longer">Longer out-breath (4-6)</option>
+          </select>
+        </div>
+        <div class="breathe-field">
+          <label for="breathing-length">Length</label>
+          <select id="breathing-length">
+            <option value="0">Until I stop</option>
+            <option value="1">About 1 minute</option>
+            <option value="3">About 3 minutes</option>
+            <option value="5">About 5 minutes</option>
+          </select>
+        </div>
         <button type="button" class="button" id="breathing-toggle">Start</button>
       </div>
+      <p class="hint" id="breathing-description">Breathe in, hold, breathe out and hold again, for 4 seconds each.</p>
       <div class="breath-stage">
         <div class="breath-circle" id="breath-circle" aria-hidden="true"><span id="breath-count"></span></div>
         <p class="breath-phase" id="breath-phase" aria-live="polite">Press Start when you're ready.</p>
