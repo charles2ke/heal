@@ -117,6 +117,42 @@ test.describe('daily check-in', () => {
     ]);
   });
 
+  test('saves the submitted note if the selected day changes while the save is queued', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'locks', {
+        configurable: true,
+        value: {
+          request: async (_name, callback) => {
+            window.lockQueued = true;
+            await new Promise((resolve) => {
+              window.releaseLock = resolve;
+            });
+            return callback();
+          },
+        },
+      });
+    });
+    await seed(page, { checkins: [{ date: TODAY, mood: 5, note: 'Today note' }] });
+    await page.goto('/you.html');
+    const day = page.getByLabel('Check in for');
+    const note = page.getByLabel('Anything on your mind?');
+    await day.selectOption({ label: 'Yesterday' });
+    await chooseMood(page, 'Low');
+    await note.fill('Yesterday note');
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect.poll(() => page.evaluate(() => window.lockQueued)).toBe(true);
+
+    await day.selectOption({ label: 'Today' });
+    await expect(note).toHaveValue('Today note');
+    await page.evaluate(() => window.releaseLock());
+
+    await expect(page.locator('#checkin-status')).toHaveText('Check-in saved for yesterday.');
+    expect((await savedData(page)).checkins).toEqual([
+      { date: daysAgo(1), mood: 2, note: 'Yesterday note' },
+      { date: TODAY, mood: 5, note: 'Today note' },
+    ]);
+  });
+
   test('shows the last seven days', async ({ page }) => {
     await seed(page, {
       checkins: [

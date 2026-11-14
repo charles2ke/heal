@@ -158,6 +158,7 @@ checkinForm.addEventListener('submit', async (event) => {
   }
   const today = page.today();
   const date = checkinDate;
+  const note = noteInput.value;
   // Only reachable if the clock moves on (or back) between renders.
   if (!canCheckIn(date, today)) {
     page.refresh();
@@ -166,7 +167,7 @@ checkinForm.addEventListener('submit', async (event) => {
     return;
   }
   const existed = Boolean(checkinFor(page.store.data, date));
-  const saved = await page.update((data) => setCheckin(data, { date, mood: Number(selected.value), note: noteInput.value }));
+  const saved = await page.update((data) => setCheckin(data, { date, mood: Number(selected.value), note }));
   formEdited = false;
   if (!saved) announce(checkinStatus, "Check-in noted, but this browser can't save it.");
   else if (date !== today) {

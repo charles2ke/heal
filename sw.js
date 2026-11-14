@@ -4,7 +4,7 @@
 //
 // `npm run sw:version` writes VERSION and ASSETS (see scripts/sw-version.js).
 
-const VERSION = '8769c934d61b';
+const VERSION = 'e1a190c2fee4';
 const ASSETS = [
   'assets/css/styles.css',
   'assets/icon.svg',
