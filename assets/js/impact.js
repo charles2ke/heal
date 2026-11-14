@@ -3,7 +3,7 @@
 
 import { GOALS } from './data/goals.js';
 import { currentStreak, lastNDays, longestStreak } from './dates.js';
-import { SCHEMA_VERSION, countEntries, normalizeData } from './store.js';
+import { LIMITS, SCHEMA_VERSION, countEntries, normalizeData } from './store.js';
 import { moodFor } from './wellbeing.js';
 import { goalsTouched } from './world.js';
 
@@ -129,12 +129,20 @@ export function mergeData(current, incoming) {
     return { ...pledge, createdAt, doneAt: pledge.doneAt ?? theirs.doneAt };
   });
 
-  const fresh = {
+  const candidates = {
     checkins: extra.checkins.filter((checkin) => !myCheckins.has(checkin.date)),
     gratitude: newEntries(base.gratitude, extra.gratitude, (entry) => `${entry.date}\n${entry.text}`),
     kindness: newEntries(base.kindness, extra.kindness, (act) => `${act.date}\n${act.ideaId ? `idea:${act.ideaId}` : act.text}`),
     pledges: extra.pledges.filter((pledge) => !myActions.has(pledge.actionId)),
   };
+  const fresh = {};
+  let overLimit = 0;
+  for (const name of COLLECTIONS) {
+    const limit = name === 'pledges' ? LIMITS.pledges : LIMITS.entries;
+    const remaining = Math.max(0, limit - base[name].length);
+    fresh[name] = candidates[name].slice(0, remaining);
+    overLimit += candidates[name].length - fresh[name].length;
+  }
   const data = normalizeData({
     checkins: [...base.checkins, ...fresh.checkins],
     gratitude: [...base.gratitude, ...fresh.gratitude],
@@ -157,9 +165,9 @@ export function mergeData(current, incoming) {
     data,
     added,
     markedDone,
-    alreadyHere: countEntries(extra) - countEntries(fresh) - markedDone - differentCheckins,
+    alreadyHere: countEntries(extra) - countEntries(candidates) - markedDone - differentCheckins,
     differentCheckins,
-    overLimit: countEntries(fresh) - added,
+    overLimit: overLimit + countEntries(fresh) - added,
   };
 }
 

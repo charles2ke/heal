@@ -13,7 +13,7 @@ import {
   summarize,
   toCsv,
 } from '../../assets/js/impact.js';
-import { SCHEMA_VERSION, countEntries, emptyData, normalizeData } from '../../assets/js/store.js';
+import { LIMITS, SCHEMA_VERSION, countEntries, emptyData, normalizeData } from '../../assets/js/store.js';
 
 const sample = normalizeData({
   checkins: [
@@ -209,6 +209,29 @@ describe('combining data', () => {
       ['e', 'a', 'b', 'c'],
     );
     assert.deepEqual([result.added, result.alreadyHere, result.overLimit], [1, 1, 1]);
+  });
+
+  it('keeps local entries when a collection is full', () => {
+    const full = normalizeData({
+      kindness: Array.from({ length: LIMITS.entries }, (_, index) => ({
+        id: `k${index}`,
+        date: '2026-03-09',
+        ideaId: null,
+        text: `act ${index}`,
+      })),
+    });
+    const incoming = normalizeData({
+      kindness: [{ id: 'new-act', date: '2026-03-10', ideaId: null, text: 'new act' }],
+    });
+
+    const result = mergeData(full, incoming);
+
+    assert.deepEqual(result.data.kindness, full.kindness);
+    assert.deepEqual(
+      [result.added, result.alreadyHere, result.differentCheckins, result.overLimit],
+      [0, 0, 0, 1],
+    );
+    assert.equal(result.added + result.markedDone + result.alreadyHere + result.differentCheckins + result.overLimit, countEntries(incoming));
   });
 });
 
