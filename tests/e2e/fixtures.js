@@ -42,6 +42,13 @@ export async function seed(page, data) {
   );
 }
 
+// The colour the browser would give its toolbar: the first theme-color whose media matches.
+export function themeColour(page) {
+  return page.evaluate(
+    () => [...document.querySelectorAll('meta[name="theme-color"]')].find((meta) => matchMedia(meta.getAttribute('media') ?? 'all').matches)?.content,
+  );
+}
+
 export async function savedData(page) {
   return page.evaluate((key) => JSON.parse(localStorage.getItem(key) ?? 'null'), STORAGE_KEY);
 }

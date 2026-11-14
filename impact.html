@@ -6,9 +6,14 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" data-scheme="light">
+  <meta name="theme-color" content="#152226" media="(prefers-color-scheme: dark)" data-scheme="dark">
   <meta name="description" content="See what your small steps add up to, and export, import or delete your data.">
   <title>Your impact · Heal</title>
   <link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-title" content="Heal">
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="assets/js/theme-init.js"></script>
   <script type="module" src="assets/js/pages/impact.js"></script>
@@ -59,18 +64,59 @@
       </div>
     </section>
 
+    <section class="panel" id="look-back" aria-labelledby="look-back-heading">
+      <h2 id="look-back-heading">Look back</h2>
+      <p>Choose a day to see how you felt, the good things you noticed and the kindness you shared.</p>
+      <div class="month-nav">
+        <h3 id="month-heading"></h3>
+        <div class="month-buttons">
+          <button type="button" class="button secondary month-button" id="month-prev"><span aria-hidden="true">←</span><span class="visually-hidden">Previous month</span></button>
+          <button type="button" class="button secondary month-button" id="month-next"><span aria-hidden="true">→</span><span class="visually-hidden">Next month</span></button>
+        </div>
+      </div>
+      <p class="visually-hidden" role="status" id="month-status"></p>
+      <p class="muted" id="month-summary"></p>
+      <div class="look-back-grid">
+        <div class="calendar-wrap">
+          <table class="calendar" aria-labelledby="month-heading" aria-describedby="calendar-hint">
+            <thead><tr id="calendar-days"></tr></thead>
+            <tbody id="calendar-body"></tbody>
+          </table>
+          <p class="hint" id="calendar-hint">Use the arrow keys to move between days, and Page Up or Page Down to change month.</p>
+        </div>
+        <div class="day-details">
+          <h3 id="day-heading"></h3>
+          <p class="muted" id="day-empty" hidden>Nothing recorded on this day.</p>
+          <dl class="day-list" id="day-list"></dl>
+        </div>
+      </div>
+    </section>
+
     <section class="panel" id="your-data" aria-labelledby="data-heading">
       <h2 id="data-heading">Your data</h2>
       <p>Everything Heal knows is stored in this browser, on this device only. If you clear your browser data or switch to another browser or device, you'll start afresh, so export a copy if you'd like to keep it.</p>
       <div class="button-row">
         <button type="button" class="button" id="export-data">Export my data</button>
+        <button type="button" class="button secondary" id="export-csv">Export as a spreadsheet (CSV)</button>
         <button type="button" class="button secondary" id="import-data">Import data</button>
         <input type="file" id="import-file" accept="application/json,.json" hidden>
         <button type="button" class="button danger" id="delete-data">Delete all my data</button>
       </div>
+      <p class="hint">Using Heal on more than one device? Export your data on one and import it on the other: you can combine it with what's already there. A spreadsheet copy is for reading or charting, and can't be imported.</p>
       <p class="status" role="status" id="data-status"></p>
     </section>
   </main>
+
+  <dialog class="dialog" id="import-dialog" aria-labelledby="import-dialog-heading" aria-describedby="import-dialog-text">
+    <h2 id="import-dialog-heading">Import this file?</h2>
+    <p id="import-dialog-text"></p>
+    <p class="hint">Combining keeps everything here and adds what's new from the file, apart from check-ins for days that already have one. Replacing can't be undone, so export your data first if you might want it back.</p>
+    <div class="button-row">
+      <button type="button" class="button" id="import-merge" autofocus>Combine with my data</button>
+      <button type="button" class="button danger" id="import-replace">Replace my data</button>
+      <button type="button" class="button secondary" id="import-cancel">Cancel</button>
+    </div>
+  </dialog>
 
   <footer class="site-footer">
     <div class="wrap">

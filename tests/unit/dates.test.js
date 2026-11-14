@@ -1,7 +1,22 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { addDays, currentStreak, dayNumber, fromDateKey, isDateKey, lastNDays, toDateKey } from '../../assets/js/dates.js';
+import {
+  addDays,
+  addMonths,
+  currentStreak,
+  dayLabel,
+  dayNumber,
+  formatLongDay,
+  fromDateKey,
+  isDateKey,
+  lastNDays,
+  longestStreak,
+  monthDays,
+  monthOf,
+  toDateKey,
+  weekdayIndex,
+} from '../../assets/js/dates.js';
 
 describe('dates', () => {
   it('formats a local date as YYYY-MM-DD', () => {
@@ -58,5 +73,39 @@ describe('dates', () => {
 
   it('counts each day once in a streak', () => {
     assert.equal(currentStreak(['2026-03-10', '2026-03-10', '2026-03-09'], '2026-03-10'), 2);
+  });
+
+  it('finds the longest streak, in any order and across months', () => {
+    assert.equal(longestStreak(['2026-03-10', '2026-02-27', '2026-03-01', '2026-02-28', '2026-03-09', '2026-03-01']), 3);
+    assert.equal(longestStreak(['2026-03-10']), 1);
+    assert.equal(longestStreak([]), 0);
+  });
+
+  it('names today and yesterday', () => {
+    assert.equal(dayLabel('2026-03-10', '2026-03-10'), 'Today');
+    assert.equal(dayLabel('2026-03-09', '2026-03-10'), 'Yesterday');
+    assert.equal(dayLabel('2026-03-08', '2026-03-10'), formatLongDay('2026-03-08'));
+  });
+});
+
+describe('months', () => {
+  it('moves between months across years', () => {
+    assert.equal(monthOf('2026-03-10'), '2026-03');
+    assert.equal(addMonths('2026-01', -1), '2025-12');
+    assert.equal(addMonths('2026-12', 1), '2027-01');
+    assert.equal(addMonths('2026-03', -14), '2025-01');
+  });
+
+  it('lists every day of a month', () => {
+    assert.equal(monthDays('2026-03').length, 31);
+    assert.equal(monthDays('2026-02').at(-1), '2026-02-28');
+    assert.equal(monthDays('2024-02').at(-1), '2024-02-29');
+    assert.equal(monthDays('2026-04')[0], '2026-04-01');
+  });
+
+  it('starts weeks on a Monday', () => {
+    assert.equal(weekdayIndex('2026-03-09'), 0);
+    assert.equal(weekdayIndex('2026-03-10'), 1);
+    assert.equal(weekdayIndex('2026-03-01'), 6);
   });
 });

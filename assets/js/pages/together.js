@@ -42,6 +42,7 @@ function renderStats(data, today) {
     ['Today', stats.today],
     ['Last 7 days', stats.week],
     ['Day streak', stats.streak],
+    ['Longest streak', stats.longest],
     ['All time', stats.total],
   ];
   statsList.replaceChildren(

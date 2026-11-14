@@ -12,6 +12,7 @@ for (const theme of ['light', 'dark']) {
       await page.goto(`/${name}.html`);
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
       if (name === 'world') await expect(page.locator('#goal-list > li')).toHaveCount(17);
+      if (name === 'index') await expect(page.locator('#offline-status')).toBeVisible();
       await page.screenshot({ path: `screenshots/${testInfo.project.name}/${name}-${theme}.png`, fullPage: true });
     });
   }
