@@ -43,12 +43,12 @@ describe('kindness', () => {
     assert.equal(removeAct(data, 'a').kindness.length, 0);
   });
 
-  it('summarises today, the week, the streak and the total', () => {
+  it('summarises today, the week, the streaks and the total', () => {
     let data = emptyData();
     for (const date of ['2026-02-20', '2026-03-08', '2026-03-09', '2026-03-10', '2026-03-10']) {
       data = logAct(data, { date, text: 'kind' });
     }
-    assert.deepEqual(kindnessStats(data, '2026-03-10'), { today: 2, week: 4, total: 5, streak: 3 });
+    assert.deepEqual(kindnessStats(data, '2026-03-10'), { today: 2, week: 4, total: 5, streak: 3, longest: 3 });
   });
 
   it('lists recent acts newest first', () => {

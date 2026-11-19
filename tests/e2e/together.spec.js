@@ -62,6 +62,8 @@ test('logs and removes your own acts', async ({ page }) => {
 test('counts a streak of kind days', async ({ page }) => {
   await seed(page, {
     kindness: [
+      { id: 'd', date: '2026-02-27', ideaId: null, text: 'Older' },
+      { id: 'e', date: '2026-02-28', ideaId: null, text: 'Older still' },
       { id: 'a', date: '2026-03-01', ideaId: null, text: 'Old one' },
       { id: 'b', date: '2026-03-08', ideaId: null, text: 'Sunday' },
       { id: 'c', date: '2026-03-09', ideaId: null, text: 'Monday' },
@@ -69,8 +71,9 @@ test('counts a streak of kind days', async ({ page }) => {
   });
   await page.goto('/together.html');
   await expect(stat(page, 'Day streak')).toHaveText('2');
+  await expect(stat(page, 'Longest streak')).toHaveText('3');
   await expect(stat(page, 'Last 7 days')).toHaveText('2');
-  await expect(stat(page, 'All time')).toHaveText('3');
+  await expect(stat(page, 'All time')).toHaveText('5');
   await expect(page.locator('#recent-acts > li').first()).toContainText('Monday');
 });
 

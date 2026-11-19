@@ -1,6 +1,6 @@
 // Feature set 2, "For each other": a daily act of kindness and a kindness log.
 
-import { addDays, currentStreak, dayNumber } from './dates.js';
+import { addDays, currentStreak, dayNumber, longestStreak } from './dates.js';
 import { KINDNESS_IDEAS } from './data/kindness-ideas.js';
 import { LIMITS, cleanText, makeId } from './store.js';
 
@@ -37,6 +37,7 @@ export function kindnessStats(data, today) {
     week: dates.filter((date) => date >= weekStart && date <= today).length,
     total: dates.length,
     streak: currentStreak(dates, today),
+    longest: longestStreak(dates),
   };
 }
 

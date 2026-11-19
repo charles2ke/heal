@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures.js';
+import { TODAY, expect, test, themeColour } from './fixtures.js';
 
 const PAGES = [
   { path: '/index.html', title: /^Heal/, heading: 'Heal', nav: 'Home' },
@@ -49,23 +49,39 @@ test('the home page links to every feature set', async ({ page }) => {
   await expect(page.locator('#today-grid')).toContainText("You haven't checked in yet today.");
 });
 
+test.describe('at midnight', () => {
+  test.use({ fixedTime: false });
+
+  test('a page left open moves on to the new day', async ({ page }) => {
+    await page.clock.install({ time: new Date(`${TODAY}T23:59:50Z`) });
+    await page.goto('/index.html');
+    await expect(page.locator('#today-date')).toHaveText(/^Tuesday,? 10 March 2026$/);
+    await page.clock.runFor(11_000);
+    await expect(page.locator('#today-date')).toHaveText(/^Wednesday,? 11 March 2026$/);
+  });
+});
+
 test('the theme toggle switches to dark and remembers it', async ({ page }) => {
   await page.emulateMedia({ colorScheme: 'light' });
   await page.goto('/index.html');
   const toggle = page.getByRole('button', { name: 'Dark theme' });
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  expect(await themeColour(page)).toBe('#ffffff');
   await toggle.click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  expect(await themeColour(page)).toBe('#152226');
 
   await page.goto('/world.html');
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   await expect(page.getByRole('button', { name: 'Dark theme' })).toHaveAttribute('aria-pressed', 'true');
   const background = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);
   expect(background).toBe('rgb(14, 23, 25)');
+  expect(await themeColour(page)).toBe('#152226');
 
   await page.getByRole('button', { name: 'Dark theme' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+  expect(await themeColour(page)).toBe('#ffffff');
 });
 
 test('the toggle follows the system theme until you choose', async ({ page }) => {
@@ -73,6 +89,7 @@ test('the toggle follows the system theme until you choose', async ({ page }) =>
   await page.goto('/index.html');
   await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.*/);
   await expect(page.getByRole('button', { name: 'Dark theme' })).toHaveAttribute('aria-pressed', 'true');
+  expect(await themeColour(page)).toBe('#152226');
 });
 
 test.describe('when the browser blocks storage', () => {

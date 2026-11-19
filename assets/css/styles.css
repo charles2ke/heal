@@ -378,6 +378,11 @@ main:focus {
   background: var(--primary);
 }
 
+.button.secondary[aria-disabled="true"]:hover {
+  background: transparent;
+  color: var(--primary);
+}
+
 .button-row {
   display: flex;
   flex-wrap: wrap;
@@ -556,6 +561,22 @@ textarea {
 
 /* For you */
 
+.day-choice {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.75rem;
+}
+
+.day-choice label {
+  margin: 0;
+}
+
+.day-choice select {
+  width: auto;
+  max-width: 100%;
+}
+
 .moods {
   margin: 0 0 1rem;
   padding: 0;
@@ -661,6 +682,11 @@ textarea {
   line-height: 1.3;
 }
 
+.more-link {
+  margin: 0.75rem 0 0;
+  font-weight: 600;
+}
+
 @media (max-width: 24rem) {
   .week {
     gap: 0.25rem;
@@ -684,6 +710,26 @@ textarea {
 
 .breathe-controls select {
   width: auto;
+  max-width: 100%;
+}
+
+.breathe-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+/* Too narrow for every label to fit beside its list, so they all go above. */
+@media (max-width: 24rem) {
+  .breathe-controls {
+    align-items: flex-end;
+  }
+
+  .breathe-field {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .breath-stage {
@@ -996,6 +1042,163 @@ textarea {
   .week-table td {
     padding-inline: 0.3rem;
   }
+}
+
+/* Look back */
+
+.month-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.month-nav h3 {
+  margin: 0;
+}
+
+.month-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.month-button {
+  min-width: 2.75rem;
+  padding-inline: 0.75rem;
+}
+
+.look-back-grid {
+  display: grid;
+  gap: 1rem 1.5rem;
+}
+
+@media (min-width: 48rem) {
+  .look-back-grid {
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    align-items: start;
+  }
+}
+
+.calendar {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0.25rem;
+  table-layout: fixed;
+}
+
+.calendar th {
+  padding-bottom: 0.25rem;
+  color: var(--muted);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.calendar td {
+  padding: 0;
+}
+
+.calendar-day {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.2rem 0;
+  border: 2px solid transparent;
+  border-radius: 0.6rem;
+  background: var(--surface-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+button.calendar-day {
+  cursor: pointer;
+}
+
+button.calendar-day:hover {
+  border-color: var(--field-border);
+}
+
+.calendar-day.future {
+  background: transparent;
+  color: var(--muted);
+}
+
+.calendar-day[aria-pressed="true"] {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.calendar-day[aria-current="date"] .calendar-number {
+  color: var(--primary);
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
+}
+
+.calendar-mark {
+  min-height: 1.35rem;
+  font-size: 1.1rem;
+}
+
+.day-details {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: var(--surface-2);
+}
+
+.day-details h3 {
+  margin-top: 0;
+}
+
+.day-details > p {
+  margin: 0;
+}
+
+.day-list {
+  margin: 0;
+}
+
+.day-list dt {
+  margin-top: 0.75rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.day-list dt:first-child {
+  margin-top: 0;
+}
+
+.day-list dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.detail-list {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.dialog {
+  width: min(34rem, calc(100% - 2rem));
+  padding: clamp(1rem, 4vw, 1.75rem);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1rem 3rem rgb(0 0 0 / 30%);
+}
+
+.dialog::backdrop {
+  background: rgb(0 0 0 / 55%);
 }
 
 @media (prefers-reduced-motion: reduce) {

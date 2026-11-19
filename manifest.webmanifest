@@ -1,0 +1,24 @@
+{
+  "name": "Heal",
+  "short_name": "Heal",
+  "description": "Small, steady steps to make the world a better place, for you, for each other and for everyone.",
+  "id": "./",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "lang": "en-GB",
+  "dir": "ltr",
+  "background_color": "#f5f8f7",
+  "theme_color": "#ffffff",
+  "categories": ["health", "lifestyle"],
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Check in", "url": "./you.html#checkin" },
+    { "name": "Breathe", "url": "./you.html#breathe" },
+    { "name": "Look back", "url": "./impact.html#look-back" }
+  ]
+}

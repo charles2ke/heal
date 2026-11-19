@@ -82,6 +82,8 @@ test('pledges, completes and removes an action', async ({ page }) => {
   await expect(page.getByRole('button', { name: `Pledge “${TREES}”` })).toHaveAttribute('aria-pressed', 'true');
 
   await page.getByRole('checkbox', { name: TREES }).uncheck();
+  // Wait for the save to finish before reading what was saved.
+  await expect(page.locator('#pledge-list > li')).not.toContainText('done Tue 10 Mar');
   expect((await savedData(page)).pledges[0].doneAt).toBeNull();
 
   await page.getByRole('button', { name: `Remove “${TREES}”` }).click();

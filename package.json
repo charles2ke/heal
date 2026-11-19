@@ -6,7 +6,9 @@
     "test": "node --test \"tests/unit/*.test.js\"",
     "start": "python3 -m http.server 4173 --bind 127.0.0.1",
     "test:e2e": "playwright test",
-    "test:all": "npm test && npm run test:e2e"
+    "test:all": "npm test && npm run test:e2e",
+    "sw:version": "node scripts/sw-version.js",
+    "icons": "node scripts/make-icons.js"
   },
   "repository": {
     "type": "git",

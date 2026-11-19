@@ -1,5 +1,6 @@
 // Feature set 1, "For you": daily check-ins, gratitude notes and paced breathing.
 
+import { lastNDays } from './dates.js';
 import { LIMITS, cleanText, makeId } from './store.js';
 
 export const MOODS = Object.freeze([
@@ -19,6 +20,18 @@ export function moodFor(value) {
 
 export function checkinFor(data, date) {
   return data.checkins.find((checkin) => checkin.date === date) ?? null;
+}
+
+// A missed check-in can be filled in for up to this many days, today included.
+export const CHECKIN_DAYS = 7;
+
+// The days a check-in can be saved for, newest first.
+export function checkinDays(today) {
+  return lastNDays(CHECKIN_DAYS, today).reverse();
+}
+
+export function canCheckIn(date, today) {
+  return checkinDays(today).includes(date);
 }
 
 // One check-in per day; saving again replaces that day's check-in.
@@ -50,6 +63,7 @@ export const BREATHING_PATTERNS = Object.freeze({
   box: {
     id: 'box',
     label: 'Box breathing (4-4-4-4)',
+    description: 'Breathe in, hold, breathe out and hold again, for 4 seconds each.',
     phases: [
       { label: 'Breathe in', seconds: 4, motion: 'in' },
       { label: 'Hold', seconds: 4, motion: 'hold-in' },
@@ -60,16 +74,45 @@ export const BREATHING_PATTERNS = Object.freeze({
   relax: {
     id: 'relax',
     label: '4-7-8 breathing',
+    description: 'Breathe in for 4 seconds, hold for 7 and breathe out slowly for 8.',
     phases: [
       { label: 'Breathe in', seconds: 4, motion: 'in' },
       { label: 'Hold', seconds: 7, motion: 'hold-in' },
       { label: 'Breathe out', seconds: 8, motion: 'out' },
     ],
   },
+  even: {
+    id: 'even',
+    label: 'Even breathing (5-5)',
+    description: 'Breathe in for 5 seconds and out for 5, about six breaths a minute, with no holds.',
+    phases: [
+      { label: 'Breathe in', seconds: 5, motion: 'in' },
+      { label: 'Breathe out', seconds: 5, motion: 'out' },
+    ],
+  },
+  longer: {
+    id: 'longer',
+    label: 'Longer out-breath (4-6)',
+    description: 'Breathe in for 4 seconds and out for 6. A gentle place to start.',
+    phases: [
+      { label: 'Breathe in', seconds: 4, motion: 'in' },
+      { label: 'Breathe out', seconds: 6, motion: 'out' },
+    ],
+  },
 });
 
 export function cycleSeconds(pattern) {
   return pattern.phases.reduce((total, phase) => total + phase.seconds, 0);
+}
+
+// Session lengths in minutes. 0 keeps going until you press Stop.
+export const SESSION_MINUTES = Object.freeze([0, 1, 3, 5]);
+
+// A timed session ends after whole rounds, as close to its length as they
+// come, and always at least one. Returns 0 for a session with no end.
+export function sessionRounds(pattern, minutes) {
+  if (!minutes) return 0;
+  return Math.max(1, Math.round((minutes * 60) / cycleSeconds(pattern)));
 }
 
 // Where a breathing session is after `elapsedMs`, derived from elapsed time

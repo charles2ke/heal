@@ -1,4 +1,4 @@
-import { TODAY, expect, savedData, seed, test } from './fixtures.js';
+import { TODAY, daysAgo, expect, savedData, seed, test } from './fixtures.js';
 
 async function chooseMood(page, label) {
   await page.locator('.mood-options label', { hasText: label }).click();
@@ -63,6 +63,96 @@ test.describe('daily check-in', () => {
     await expect(nudge).toBeHidden();
   });
 
+  test('can fill in a missed day from the last week', async ({ page }) => {
+    await seed(page, { checkins: [{ date: TODAY, mood: 5, note: 'Today' }] });
+    await page.goto('/you.html');
+    const day = page.getByLabel('Check in for');
+    const legend = page.locator('#checkin-legend');
+    const note = page.getByLabel('Anything on your mind?');
+    const status = page.locator('#checkin-status');
+    await expect(day.locator('option')).toHaveText([
+      'Today',
+      'Yesterday',
+      'Sunday 8 March',
+      'Saturday 7 March',
+      'Friday 6 March',
+      'Thursday 5 March',
+      'Wednesday 4 March',
+    ]);
+
+    await day.selectOption({ label: 'Yesterday' });
+    await expect(legend).toHaveText('How did you feel yesterday?');
+    await expect(page.locator('input[name="mood"]:checked')).toHaveCount(0);
+    await expect(note).toHaveValue('');
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect(status).toHaveText('Choose how you felt first.');
+
+    await chooseMood(page, 'Low');
+    await note.fill('Tired');
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect(status).toHaveText('Check-in saved for yesterday.');
+    await expect(page.locator('#mood-week > li').nth(5)).toContainText('Low');
+
+    await day.selectOption({ label: 'Sunday 8 March' });
+    await expect(legend).toHaveText('How did you feel on Sunday 8 March?');
+    await expect(status).toHaveText('');
+    await chooseMood(page, 'Okay');
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect(status).toHaveText('Check-in saved for Sunday 8 March.');
+
+    await day.selectOption({ label: 'Yesterday' });
+    await expect(page.getByRole('radio', { name: 'Low' })).toBeChecked();
+    await expect(note).toHaveValue('Tired');
+    await chooseMood(page, 'Okay');
+    await page.getByRole('button', { name: 'Update check-in' }).click();
+    await expect(status).toHaveText('Check-in for yesterday updated.');
+
+    await day.selectOption({ label: 'Today' });
+    await expect(legend).toHaveText('How are you feeling today?');
+    await expect(page.getByRole('radio', { name: 'Great' })).toBeChecked();
+    expect((await savedData(page)).checkins).toEqual([
+      { date: daysAgo(2), mood: 3, note: '' },
+      { date: daysAgo(1), mood: 3, note: 'Tired' },
+      { date: TODAY, mood: 5, note: 'Today' },
+    ]);
+  });
+
+  test('saves the submitted note if the selected day changes while the save is queued', async ({ page }) => {
+    await page.addInitScript(() => {
+      Object.defineProperty(navigator, 'locks', {
+        configurable: true,
+        value: {
+          request: async (_name, callback) => {
+            window.lockQueued = true;
+            await new Promise((resolve) => {
+              window.releaseLock = resolve;
+            });
+            return callback();
+          },
+        },
+      });
+    });
+    await seed(page, { checkins: [{ date: TODAY, mood: 5, note: 'Today note' }] });
+    await page.goto('/you.html');
+    const day = page.getByLabel('Check in for');
+    const note = page.getByLabel('Anything on your mind?');
+    await day.selectOption({ label: 'Yesterday' });
+    await chooseMood(page, 'Low');
+    await note.fill('Yesterday note');
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect.poll(() => page.evaluate(() => window.lockQueued)).toBe(true);
+
+    await day.selectOption({ label: 'Today' });
+    await expect(note).toHaveValue('Today note');
+    await page.evaluate(() => window.releaseLock());
+
+    await expect(page.locator('#checkin-status')).toHaveText('Check-in saved for yesterday.');
+    expect((await savedData(page)).checkins).toEqual([
+      { date: daysAgo(1), mood: 2, note: 'Yesterday note' },
+      { date: TODAY, mood: 5, note: 'Today note' },
+    ]);
+  });
+
   test('shows the last seven days', async ({ page }) => {
     await seed(page, {
       checkins: [
@@ -81,6 +171,35 @@ test.describe('daily check-in', () => {
   });
 });
 
+test.describe('at midnight', () => {
+  test.use({ fixedTime: false });
+
+  test('moves an untouched check-in on to the new day', async ({ page }) => {
+    await page.clock.install({ time: new Date(`${TODAY}T23:59:50Z`) });
+    await page.goto('/you.html');
+    await expect(page.getByLabel('Check in for')).toHaveValue(TODAY);
+    await page.clock.runFor(11_000);
+    await expect(page.getByLabel('Check in for')).toHaveValue('2026-03-11');
+    await expect(page.locator('#checkin-legend')).toHaveText('How are you feeling today?');
+  });
+
+  test('keeps a check-in started before midnight for that day', async ({ page }) => {
+    await page.clock.install({ time: new Date(`${TODAY}T23:59:50Z`) });
+    await page.goto('/you.html');
+    await chooseMood(page, 'Good');
+    await page.getByLabel('Anything on your mind?').fill('A late one');
+    await page.clock.runFor(11_000);
+    await expect(page.locator('#checkin-legend')).toHaveText('How did you feel yesterday?');
+    await expect(page.getByLabel('Check in for')).toHaveValue(TODAY);
+    await expect(page.getByRole('radio', { name: 'Good', exact: true })).toBeChecked();
+    await expect(page.getByLabel('Anything on your mind?')).toHaveValue('A late one');
+
+    await page.getByRole('button', { name: 'Save check-in' }).click();
+    await expect(page.locator('#checkin-status')).toHaveText('Check-in saved for yesterday.');
+    expect((await savedData(page)).checkins).toEqual([{ date: TODAY, mood: 4, note: 'A late one' }]);
+  });
+});
+
 test.describe('three good things', () => {
   test('adds up to three a day and removes them', async ({ page }) => {
     await page.goto('/you.html');
@@ -94,6 +213,8 @@ test.describe('three good things', () => {
     for (const [index, text] of entries.entries()) {
       await input.fill(text);
       await add.click();
+      // Wait for the save to finish, since the status reads "Added." from the last one too.
+      await expect(page.locator('#gratitude-list > li')).toHaveCount(index + 1);
       await expect(page.locator('#gratitude-status')).toHaveText(
         index === entries.length - 1 ? "Added. That's your three good things for today." : 'Added.',
       );
@@ -150,6 +271,45 @@ test.describe('breathing', () => {
     await page.getByRole('button', { name: 'Stop' }).click();
     await expect(phase).toHaveText('Well done. Press Start whenever you need another moment.');
     await expect(page.getByLabel('Pattern')).toBeEnabled();
+  });
+
+  test('describes each pattern, including ones without holds', async ({ page }) => {
+    await openPaused(page);
+    const description = page.locator('#breathing-description');
+    await expect(description).toHaveText('Breathe in, hold, breathe out and hold again, for 4 seconds each.');
+    await page.getByLabel('Pattern').selectOption({ label: 'Even breathing (5-5)' });
+    await expect(description).toHaveText('Breathe in for 5 seconds and out for 5, about six breaths a minute, with no holds.');
+
+    await page.getByRole('button', { name: 'Start' }).click();
+    await expect(page.locator('#breath-phase')).toHaveText('Breathe in');
+    await expect(page.locator('#breath-count')).toHaveText('5');
+    await page.clock.runFor(5_000);
+    await expect(page.locator('#breath-phase')).toHaveText('Breathe out');
+    await expect(page.locator('#breath-count')).toHaveText('5');
+    await page.clock.runFor(5_000);
+    await expect(page.locator('#breath-phase')).toHaveText('Breathe in');
+    await expect(page.locator('#breath-cycles')).toHaveText('Rounds completed: 1');
+  });
+
+  test('stops by itself after a timed session', async ({ page }) => {
+    await openPaused(page);
+    const length = page.getByLabel('Length');
+    const rounds = page.locator('#breath-cycles');
+    await length.selectOption({ label: 'About 1 minute' });
+    await page.getByRole('button', { name: 'Start' }).click();
+    await expect(rounds).toHaveText('Round 1 of 4');
+    await expect(length).toBeDisabled();
+
+    await page.clock.runFor(16_000);
+    await expect(rounds).toHaveText('Round 2 of 4');
+    await page.clock.runFor(47_000);
+    await expect(rounds).toHaveText('Round 4 of 4');
+    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible();
+    await page.clock.runFor(1_000);
+    await expect(page.locator('#breath-phase')).toHaveText('Session complete. Well done.');
+    await expect(rounds).toHaveText('Rounds completed: 4');
+    await expect(page.getByRole('button', { name: 'Start' })).toBeVisible();
+    await expect(length).toBeEnabled();
   });
 
   test('supports 4-7-8 breathing', async ({ page }) => {
